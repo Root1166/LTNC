@@ -1,0 +1,10 @@
+
+		     Quan Ly Mat Cac Loai Mat Hang
+
+
+			Danh Sach Cac mat hang
+
+
+STT     Mathang         Gia             Soluong        Thanhtien      
+2       mau             10022           102            132240         
+4       ccc             120             1102           132240         

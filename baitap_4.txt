@@ -1,0 +1,99 @@
+// baitap_4.cpp : Defines the entry point for the console application.
+//C:\\Users\\anonymouse\\Documents\\Visual Studio 2015\\Projects\\lab2CT\\lab2CT\\t.txt
+
+#include "stdafx.h"
+#include<Windows.h>
+#include<stdio.h>
+#include<malloc.h>
+#include<conio.h>
+#define N 4
+typedef struct arr {
+	int a[100]; 
+}array,*arra;
+int n;
+void print_array(arra a)
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		printf("%d\t",a->a[i]);
+	}
+}
+DWORD WINAPI sort(LPVOID a)
+{
+	int i,j,mid;
+	arra b = (arra) a;
+	//genda(b->a[i]);
+	for (i = 0; i < n; i++)
+		for(j=i+1;j<n;j++)
+	{
+			if (b->a[i] > b->a[j])
+			{
+				mid=b->a[j];
+				b->a[j] = b->a[i];
+				b->a[i] = mid;
+			}
+	}
+	return 0;
+}
+int main()
+{
+	FILETIME createTime,exitTime,kerTime,UserTime,threadTime;
+	LARGE_INTEGER time1,time2,time3;
+	SYSTEMTIME sysTime;
+	int i;
+	arra a[N];
+	HANDLE hThread[N];
+	DWORD t_Id[N];
+	printf("Input the number of an array:");
+	scanf("%d", &n);
+	printf("\nInitializing the array!!!");
+	//a = (arra)calloc(1, sizeof(array));
+	//pDataArray[i] = (PMYDATA) HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,sizeof(MYDATA));
+	for (i = 0; i < N; i++)
+	{
+		a[i] = (arra)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(array));
+		if (a[i] == NULL)
+		{
+			printf("%d", GetLastError());
+			return 1;
+		}
+		for (int j = 0; j < n; j++)
+		{
+			a[i]->a[j] = rand();
+		}
+		hThread[i] = CreateThread(NULL, 0, sort, a[i], 0, &t_Id[i]);
+		if (hThread == NULL)
+		{
+			printf("%d", GetLastError());
+			return 1;
+		}
+		//WaitForSingleObject(hThread, INFINITE);
+		//CloseHandle(hThread);
+	}
+	WaitForMultipleObjects(N, hThread, TRUE, INFINITE);
+	for (i = 0; i < N; i++)
+	{
+		GetThreadTimes(hThread[i], &createTime, &exitTime, &kerTime, &UserTime);
+		time1.HighPart = createTime.dwHighDateTime;
+		time1.LowPart = createTime.dwLowDateTime;
+		time2.HighPart = exitTime.dwHighDateTime;
+		time2.LowPart = exitTime.dwLowDateTime;
+		time3.QuadPart = time2.QuadPart - time1.QuadPart;
+		threadTime.dwHighDateTime = time3.HighPart;
+		threadTime.dwLowDateTime = time3.LowPart;
+		FileTimeToSystemTime(&threadTime, &sysTime);
+		printf("\nThread %d:",i+1);
+		printf("%d ms", sysTime.wMilliseconds);
+	}
+	printf("\n!Done\n");
+	for (i = 0; i < N; i++)
+	{
+		printf("Array %d\n:", i + 1);
+		print_array(a[i]);
+		printf("\n");
+	}
+	_getch();
+	return 0;
+}
+
